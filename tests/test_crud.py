@@ -221,7 +221,7 @@ class TestIncidents:
                 "direction": "Centro"
             }
         )
-        assert response.status_code == 401
+        assert response.status_code in (401, 403)  # HTTPBearer retorna 403 sem token
 
     def test_list_incidents_filter_by_line(self, auth_token):
         client.post(
