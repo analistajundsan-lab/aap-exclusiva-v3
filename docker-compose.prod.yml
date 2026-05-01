@@ -29,44 +29,6 @@ services:
       timeout: 5s
       retries: 5
 
-  backend:
-    build: ./backend
-    container_name: aap_backend
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/aap_db
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production-please}
-      JWT_ALGORITHM: HS256
-      JWT_EXPIRATION_MINUTES: "60"
-      ENVIRONMENT: development
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-
-  frontend:
-    build: ./frontend
-    container_name: aap_frontend
-    ports:
-      - "5173:80"
-    depends_on:
-      backend:
-        condition: service_healthy
-    environment:
-      - NODE_ENV=production
-
   prometheus:
     image: prom/prometheus:latest
     container_name: aap_prometheus
@@ -78,25 +40,49 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
 
   grafana:
     image: grafana/grafana:latest
     container_name: aap_grafana
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: admin
       GF_SECURITY_ADMIN_USER: admin
-      GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
+
+  backend:
+    build: ./backend
+    container_name: aap_backend
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/aap_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: aap_frontend
+    ports:
+      - "5173:3000"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, func, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import enum
 from datetime import datetime
@@ -32,7 +32,7 @@ class Incident(Base):
     prefix_code = Column(String(10), nullable=False, index=True)
     incident_type = Column(String(50), nullable=False)
     description = Column(String(500))
-    line = Column(String(50))
+    line = Column(String(50), index=True)
     direction = Column(String(50))
     created_by = Column(Integer, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), index=True)
@@ -42,8 +42,8 @@ class Swap(Base):
     __tablename__ = "swaps"
     
     id = Column(Integer, primary_key=True, index=True)
-    vehicle_out = Column(String(10), nullable=False)
-    vehicle_in = Column(String(10), nullable=False)
+    vehicle_out = Column(String(10), nullable=False, index=True)
+    vehicle_in = Column(String(10), nullable=False, index=True)
     lines_covered = Column(String(500))
     created_by = Column(Integer, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), index=True)
@@ -53,14 +53,14 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False)
-    action = Column(String(50), nullable=False)
+    user_id = Column(Integer, nullable=False, index=True)
+    action = Column(String(50), nullable=False, index=True)
     resource = Column(String(50), nullable=False)
-    resource_id = Column(Integer)
+    resource_id = Column(Integer, index=True)
     details = Column(String(500))
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
-engine = create_engine(settings.DATABASE_URL, echo=False)
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():

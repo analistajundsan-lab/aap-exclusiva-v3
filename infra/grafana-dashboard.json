@@ -1,0 +1,55 @@
+{
+  "dashboard": {
+    "title": "AAP Exclusiva v3.0 - Métricas",
+    "panels": [
+      {
+        "title": "Requisições HTTP por segundo",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[1m])"
+          }
+        ]
+      },
+      {
+        "title": "Latência P95 (ms)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, http_request_duration_seconds)"
+          }
+        ]
+      },
+      {
+        "title": "Erros de Autenticação",
+        "targets": [
+          {
+            "expr": "rate(auth_attempts_total{status='failed'}[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Taxa de Rate Limit",
+        "targets": [
+          {
+            "expr": "rate(rate_limit_hits_total[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Latência de Queries BD (ms)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, db_query_duration_seconds)"
+          }
+        ]
+      },
+      {
+        "title": "Operações Redis por segundo",
+        "targets": [
+          {
+            "expr": "rate(redis_operations_total[1m])"
+          }
+        ]
+      }
+    ]
+  }
+}

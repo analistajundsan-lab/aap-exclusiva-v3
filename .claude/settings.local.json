@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.md$|\\\\.txt$\")",
+      "Bash(grep \"\\\\.md$\")",
+      "Bash(awk '{print $9}')"
+    ]
+  }
+}
