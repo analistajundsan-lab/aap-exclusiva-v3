@@ -18,9 +18,9 @@ def init_redis():
             socket_connect_timeout=5
         )
         redis_client.ping()
-        print("✅ Redis connected successfully")
+        print("[OK] Redis connected successfully")
     except Exception as e:
-        print(f"⚠️  Redis connection failed: {e}")
+        print(f"[WARN] Redis connection failed: {e}")
         redis_client = None
 
 
