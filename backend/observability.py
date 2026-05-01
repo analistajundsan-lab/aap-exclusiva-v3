@@ -1,7 +1,10 @@
 import logging
 import json
 from datetime import datetime
-from pythonjsonlogger import json as jsonlogger
+try:
+    from pythonjsonlogger import json as jsonlogger  # python-json-logger >= 3.x
+except ImportError:
+    from pythonjsonlogger import jsonlogger  # python-json-logger 2.x
 from prometheus_client import Counter, Histogram, Gauge
 import time
 
